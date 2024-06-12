@@ -1,11 +1,11 @@
 import streamlit as st
 import pandas as pd
-from Vorlesung_2 import read_data
-from Vorlesung_3 import read_pandas
-from Vorlesung_4 import funktions
-from Vorlesung_5 import Klasse_ekgdata, Klasse_person
+from Personen import read_data, Klasse_ekgdata, Klasse_person
+# from Vorlesung_3 import read_pandas
+# from Vorlesung_4 import funktions
 from PIL import Image
 from streamlit_option_menu import option_menu
+
 
 with st.sidebar: 
     selected = option_menu (menu_title= "Menu", options= ["Personen", "Freie Aufgaben"])
@@ -57,6 +57,7 @@ if selected == "Personen":
             # st.write (str (Instanz_von_Current_user.calc_age()))
             # st.write (str (Instanz_von_Current_user.calc_max_heart_rate()))
 
+
            # Bild in der zweiten Spalte
         with col2:
             ### !!! BILD EINFÜGEN!!!
@@ -71,6 +72,7 @@ if selected == "Personen":
 
             # Öffne das Bild und Zeige es an
             # image = Image.open("../" + st.session_state.picture_path)
+            
             image = Image.open(st.session_state.picture_path)
             st.image(image)
 
@@ -81,10 +83,9 @@ if selected == "Personen":
             st.write ("Alter:" + str (Instanz_von_Current_user.calc_age()))
             st.write ("Maximale Herzfrequenz:" + str (Instanz_von_Current_user.calc_max_heart_rate()))
         
-        fig_Ekg = Instanz_von_Current_EKG.plot_time_series()
-        st.plotly_chart(fig_Ekg)
+        
 
-        st.metric(label="Durchschnittliche Herzrate [Bpm] im angezeigten Zeitfenster", value = round(Instanz_von_Current_EKG.estimate_hr(), 2))
+            
     
         # st.session_state.current_test = st.selectbox('Test', options = [[1, " ruhe"],[2, " besl"]], key="sbTest")
 
@@ -98,30 +99,21 @@ if selected == "Personen":
         liste_ekg_tests = []
         for einträge in Person_Dict ['ekg_tests']:
             liste_ekg_tests.append(einträge['id'] )
+        
         st.session_state.current_EKG_test = st.selectbox('EKG Test [ID]', options = liste_ekg_tests, key="sbEKG_Test")
        
         # Erstelle Instanz EKG test
         EKG_Dict = Klasse_ekgdata.EKGdata.load_by_id (st.session_state.current_EKG_test)
         Instanz_von_Current_EKG = Klasse_ekgdata.EKGdata(EKG_Dict)
 
-        # st.metric(label="Dateiname", value = Instanz_von_Current_EKG.data)
-        st.markdown ("**Dateiname:**" )
-        st.write (Instanz_von_Current_EKG.data[14:])
-
-
-### KLASSE EKG
-        liste_ekg_tests = []
-        for einträge in Person_Dict ['ekg_tests']:
-            liste_ekg_tests.append(einträge['id'] )
-
-        st.session_state.current_EKG_test = st.selectbox('EKG Test [ID]', options = liste_ekg_tests, key="sbEKG_Test")
-        # Erstelle Instanz EKG test
-        EKG_Dict = Klasse_ekgdata.EKGdata.load_by_id (st.session_state.current_EKG_test)
-        Instanz_von_Current_EKG = Klasse_ekgdata.EKGdata(EKG_Dict)
+        fig_Ekg = Instanz_von_Current_EKG.plot_time_series()
+        st.plotly_chart(fig_Ekg)
 
         # st.metric(label="Dateiname", value = Instanz_von_Current_EKG.data)
         st.markdown ("**Dateiname:**" )
         st.write (Instanz_von_Current_EKG.data[14:])
+
+        st.metric(label="Durchschnittliche Herzrate [Bpm] im angezeigten Zeitfenster", value = round(Instanz_von_Current_EKG.estimate_hr(), 2))
 
 
 
