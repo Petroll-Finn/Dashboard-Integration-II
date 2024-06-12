@@ -76,14 +76,18 @@ class EKGdata:
         durchschnittliche_peak_diff = sum(peak_differenz) / len(peak_differenz)
         Herzrate= 60 / (durchschnittliche_peak_diff / 500) # 500 wegen aufnamen der Daten in [2 ms] schritten
 
-        # _, self.peaks_ganze_zeitreihe = self.find_peaks()
-        # peak_differenz = [self.peaks_ganze_zeitreihe[i+1] - self.peaks_ganze_zeitreihe[i] for i in range(len(self.peaks_ganze_zeitreihe)-1)]
-        # durchschnittliche_peak_diff = sum(peak_differenz) / len(peak_differenz)
-        # Herzrate= 60 / (durchschnittliche_peak_diff / 500) # 500 wegen aufnamen der Daten in [2 ms] schritten
-
-        # print (Herzrate)
         return Herzrate
     
+    def return_Test_Datum (self):
+        datum = self.date
+        return (datum)
+    
+    def return_Länge_Teitreihe (self):
+        df = self.df
+        # print (len(df))
+        zeit = len(df) * 500
+        print (zeit)
+
 
 
 if __name__ == "__main__":
@@ -93,7 +97,7 @@ if __name__ == "__main__":
     person_data = json.load(file)
     # print(person_data)
     
-    ekg_dict1 = person_data[1]["ekg_tests"][0]
+    ekg_dict1 = person_data[0]["ekg_tests"][0]
     print(ekg_dict1)
     ekg = EKGdata (ekg_dict1, 2000)
     # print (ekg.df)
@@ -101,10 +105,11 @@ if __name__ == "__main__":
     tuple1= ekg.find_peaks()
     # print (tuple1[1])
 
-    ekg.estimate_hr()
+    print (ekg.return_Test_Datum())
     # print(ekg.df.head())
     # EKGdata.find_peaks(1)
 
+    ekg.return_Länge_Teitreihe()
 
     fig = ekg.plot_time_series()
     # fig.show()
