@@ -30,8 +30,6 @@ if selected == "Personen":
             list_person_names = read_data.get_person_list()
             # print (list_person_names)
 
-            st.write("## Versuchsperson Informationen")
-
             # Session State wird leer angelegt, solange er noch nicht existiert
             if 'current_user' not in st.session_state:
                 st.session_state.current_user = 'None'
@@ -52,6 +50,16 @@ if selected == "Personen":
             # Erstelle Instanz Person
             Person_Dict = Klasse_person.Person.load_by_id(ID_person)
             Instanz_von_Current_user = Klasse_person.Person(Person_Dict)
+
+            # Personen Daten
+            df = pd.DataFrame(columns=['Spalte1', 'Spalte2'])
+            df = df._append({'Spalte1': "Vorname: ", 'Spalte2': read_data.find_person_data_by_name(st.session_state.current_user)["firstname"]}, ignore_index=True)
+            df = df._append({'Spalte1': "Nachname: ", 'Spalte2': read_data.find_person_data_by_name(st.session_state.current_user)["lastname"]}, ignore_index=True)
+            df = df._append({'Spalte1': "Geburtsjahr: ", 'Spalte2': str (read_data.find_person_data_by_name(st.session_state.current_user)["date_of_birth"])}, ignore_index=True)
+            df = df._append({'Spalte1': "Alter: ", 'Spalte2': str (Instanz_von_Current_user.calc_age())}, ignore_index=True)
+            df = df._append({'Spalte1': "Maximale Herzfrequenz: ", 'Spalte2': str (Instanz_von_Current_user.calc_max_heart_rate())}, ignore_index=True)
+            
+            st.dataframe(df.values)
 
             #Testen
             # st.write (str (Instanz_von_Current_user.calc_age()))
@@ -75,18 +83,7 @@ if selected == "Personen":
             
             image = Image.open(st.session_state.picture_path)
             st.image(image)
-
-            # Personen Daten
-            st.write ("Vorname: " + read_data.find_person_data_by_name(st.session_state.current_user)["firstname"])
-            st.write ("Nachname: " + read_data.find_person_data_by_name(st.session_state.current_user)["lastname"])
-            st.write ("Geburtsjahr: " + str (read_data.find_person_data_by_name(st.session_state.current_user)["date_of_birth"]))
-            st.write ("Alter:" + str (Instanz_von_Current_user.calc_age()))
-            st.write ("Maximale Herzfrequenz:" + str (Instanz_von_Current_user.calc_max_heart_rate()))
-        
-        
-
-            
-    
+  
         # st.session_state.current_test = st.selectbox('Test', options = [[1, " ruhe"],[2, " besl"]], key="sbTest")
 
 
