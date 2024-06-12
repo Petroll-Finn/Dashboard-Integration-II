@@ -5,9 +5,9 @@ from Vorlesung_3 import read_pandas
 from Vorlesung_4 import funktions
 from Vorlesung_5 import Klasse_ekgdata, Klasse_person
 from PIL import Image
-from streamlit_option_menu import option_menuwith 
+from streamlit_option_menu import option_menu
 
-st.sidebar: 
+with st.sidebar: 
     selected = option_menu (menu_title= "Menu", options= ["Personen", "Freie Aufgaben"])
 
 
