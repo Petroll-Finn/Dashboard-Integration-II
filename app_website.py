@@ -1,4 +1,13 @@
-with st.sidebar:
+import streamlit as st
+import pandas as pd
+from Vorlesung_2 import read_data
+from Vorlesung_3 import read_pandas
+from Vorlesung_4 import funktions
+from Vorlesung_5 import Klasse_ekgdata, Klasse_person
+from PIL import Image
+from streamlit_option_menu import option_menuwith 
+
+st.sidebar: 
     selected = option_menu (menu_title= "Menu", options= ["Personen", "Freie Aufgaben"])
 
 
@@ -100,7 +109,19 @@ if selected == "Personen":
         st.write (Instanz_von_Current_EKG.data[14:])
 
 
+### KLASSE EKG
+        liste_ekg_tests = []
+        for einträge in Person_Dict ['ekg_tests']:
+            liste_ekg_tests.append(einträge['id'] )
 
+        st.session_state.current_EKG_test = st.selectbox('EKG Test [ID]', options = liste_ekg_tests, key="sbEKG_Test")
+        # Erstelle Instanz EKG test
+        EKG_Dict = Klasse_ekgdata.EKGdata.load_by_id (st.session_state.current_EKG_test)
+        Instanz_von_Current_EKG = Klasse_ekgdata.EKGdata(EKG_Dict)
+
+        # st.metric(label="Dateiname", value = Instanz_von_Current_EKG.data)
+        st.markdown ("**Dateiname:**" )
+        st.write (Instanz_von_Current_EKG.data[14:])
 
 
 
