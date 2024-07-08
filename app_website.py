@@ -101,17 +101,23 @@ if selected == "Personen":
        
         # Erstelle Instanz EKG test
         EKG_Dict = Klasse_ekgdata.EKGdata.load_by_id (st.session_state.current_EKG_test)
-        Instanz_von_Current_EKG = Klasse_ekgdata.EKGdata(EKG_Dict)
+        Instanz_von_Current_EKG = Klasse_ekgdata.EKGdata(EKG_Dict, 100, 500)
 
+        #erstellen des Plots
+        # df_for_plotting = Instanz_von_Current_EKG.return_df_for_Plotting (30,40)
         fig_Ekg = Instanz_von_Current_EKG.plot_time_series()
         st.plotly_chart(fig_Ekg)
 
-        # st.metric(label="Dateiname", value = Instanz_von_Current_EKG.data)
-        st.markdown ("**Dateiname:**" )
-        st.write (Instanz_von_Current_EKG.data[14:])
 
-        st.metric(label="Durchschnittliche Herzrate [Bpm] im angezeigten Zeitfenster", value = round(Instanz_von_Current_EKG.estimate_hr(), 2))
+        # st.markdown ("**Dateiname:**" )
+        # st.write (Instanz_von_Current_EKG.data[14:])
+        st.metric(label="**Dateiname:**", value = Instanz_von_Current_EKG.data[14:])
 
+        # st.markdown ("**Durchschnittliche Herzrate [Bpm] im angezeigten Zeitfenster:**" )
+        # st.write (str(round(Instanz_von_Current_EKG.estimate_hr(), 2)))
+        st.metric(label="**Durchschnittliche Herzrate [Bpm] im angezeigten Zeitfenster:**", value = round(Instanz_von_Current_EKG.estimate_hr(), 2))
+
+        st.metric(label="**Testdatum:**", value = Instanz_von_Current_EKG.return_Test_Datum())
 
 
 

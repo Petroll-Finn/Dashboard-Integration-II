@@ -31,46 +31,68 @@ class EKGdata:
 
 
 
-    def __init__(self, ekg_dict, head_Werte = 2000):
+    def __init__(self, ekg_dict, start_wert, end_wert):
         self.id = ekg_dict["id"]
         self.date = ekg_dict["date"]
         self.data = ekg_dict["result_link"]
         self.df = pd.read_csv(self.data, sep='\t', header=None, names=['Messwerte in mV','Zeit in ms',])
-        self.head_Werte = head_Werte
+        self.start_wert = start_wert
+        self.end_wert = end_wert
 
     def make_plot(self):
         # Erstellte einen Line Plot, der ersten 2000 Werte mit der Zeit aus der x-Achse
         self.fig = px.line(self.df, x="Zeit in ms", y="Messwerte in mV", labels ='signal')
 
     
-    def return_df_Head (self):
-        df_head = self.df.head(self.head_Werte)
-        return df_head
+    def return_df_for_Plotting (self):
+        df_plotting = self.df
+        df_plotting['Zeit in ms'] = df_plotting['Zeit in ms'] / 500 # umrechnen in Sekunden für Plot
+        df_plotting = df_plotting.loc[(df_plotting['Zeit in ms'] >= self.start_wert) & (df_plotting['Zeit in ms'] <= self.end_wert)] #entfernung von Zeile die nicht im Zeitfenster liegen
+        # print (df_plotting)
+        return df_plotting
+    
+
+    def test (self):
+        df = self.return_df_for_Plotting()
+        return df
+
 
     def find_peaks (self):
-        df_head = self.return_df_Head ()
+        
+        df = self.return_df_for_Plotting ()
 
-        peaks_indizes, Messwerte_bei_Peaks = find_peaks(df_head['Messwerte in mV'], height=350)
+        # print (df)
+
+        peaks_indizes, Messwerte_bei_Peaks = find_peaks(df['Messwerte in mV'], height=350)
         # list_Messwerte_bei_Peaks = Messwerte_bei_Peaks ['peak_heights']
-
         peaks_ganze_Zeitreihe_Indizes, Messwerte_Peaks_ganze_Zeitreihe_ = find_peaks(self.df['Messwerte in mV'], height=350)
-
+        print ("ich werde ausgeführt")
         return peaks_indizes, peaks_ganze_Zeitreihe_Indizes
 
 
     def plot_time_series(self):
-        df_head = self.return_df_Head ()
+        #Funktion für Plotten der Ekg signale
+        df = self.return_df_for_Plotting()
+        
+        # print (self.test())
+
+        print (df)
+
         self.peaks, _ = self.find_peaks()
-        # print (self.peaks[0])
+        
+        # df_head['Zeit in ms'] = df_head['Zeit in ms'] / 500 # umrechenn in Sekunden für Plot
 
         self.fig = go.Figure()
-        self.fig.add_scatter (x=df_head['Zeit in ms'], y=df_head['Messwerte in mV'], mode='lines', name='Signal')
-        self.fig.add_scatter (x=df_head['Zeit in ms'][self.peaks], y=df_head['Messwerte in mV'][self.peaks], mode='markers', name='Peaks', marker=dict(color='red', size=10))
-        self.fig.update_layout(title='Plot des Ekg Signals mit Peaks', xaxis_title='Zeit [ms]', yaxis_title='Amplitude [Mv]')
+        self.fig.add_scatter (x = df['Zeit in ms'], y = df['Messwerte in mV'], mode='lines', name='Signal')
+        self.fig.add_scatter (x = df['Zeit in ms'][self.peaks], y = df['Messwerte in mV'][self.peaks], mode='markers', name='Peaks', marker=dict(color='red', size=10))
+        self.fig.update_layout(title='Plot des Ekg Signals mit Peaks', xaxis_title='Zeit [s]', yaxis_title='Amplitude [Mv]')
 
         return self.fig 
     
+
+
     def estimate_hr(self):
+        #Funktion für Berechnung der Herzrate
         self.peaks, _ = self.find_peaks()
         peak_differenz = [self.peaks[i+1] - self.peaks[i] for i in range(len(self.peaks)-1)]
         durchschnittliche_peak_diff = sum(peak_differenz) / len(peak_differenz)
@@ -82,16 +104,15 @@ class EKGdata:
         datum = self.date
         return (datum)
     
-    def return_Länge_Teitreihe (self):
+    def return_Länge_Zeitreihe (self):
         df = self.df
-        # print (len(df))
-        zeit = len(df) * 500
-        print (zeit)
+        zeit = len(df) / 500
+        return zeit
 
 
 
 if __name__ == "__main__":
-    print("This is a module with some functions to read the EKG data")
+    # print("This is a module with some functions to read the EKG data")
     file = open("data/person_db.json")
 
     person_data = json.load(file)
@@ -99,20 +120,28 @@ if __name__ == "__main__":
     
     ekg_dict1 = person_data[0]["ekg_tests"][0]
     print(ekg_dict1)
-    ekg = EKGdata (ekg_dict1, 2000)
+    ekg = EKGdata (ekg_dict1, 30, 40)
     # print (ekg.df)
 
-    tuple1= ekg.find_peaks()
+    # print (ekg.test())
+    
+    # tuple1= ekg.find_peaks()
     # print (tuple1[1])
 
-    print (ekg.return_Test_Datum())
+    # print (ekg.return_df_for_Plotting())
+    # print (ekg.find_peaks())
+
+
     # print(ekg.df.head())
     # EKGdata.find_peaks(1)
 
-    ekg.return_Länge_Teitreihe()
+    # print (ekg.return_Test_Datum())
+    # print (ekg.return_Länge_Zeitreihe())
+    
+    
 
     fig = ekg.plot_time_series()
-    # fig.show()
+    fig.show()
     # print (EKGdata.load_by_id(4))
 
 
