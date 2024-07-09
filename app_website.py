@@ -101,7 +101,7 @@ if selected == "Personen":
        
         # Erstelle Instanz EKG test
         EKG_Dict = Klasse_ekgdata.EKGdata.load_by_id (st.session_state.current_EKG_test)
-        Instanz_von_Current_EKG = Klasse_ekgdata.EKGdata(EKG_Dict, 100, 500)
+        Instanz_von_Current_EKG = Klasse_ekgdata.EKGdata(EKG_Dict)
 
         #erstellen des Plots
         # df_for_plotting = Instanz_von_Current_EKG.return_df_for_Plotting (30,40)
@@ -111,13 +111,15 @@ if selected == "Personen":
 
         # st.markdown ("**Dateiname:**" )
         # st.write (Instanz_von_Current_EKG.data[14:])
-        st.metric(label="**Dateiname:**", value = Instanz_von_Current_EKG.data[14:])
+        
 
         # st.markdown ("**Durchschnittliche Herzrate [Bpm] im angezeigten Zeitfenster:**" )
         # st.write (str(round(Instanz_von_Current_EKG.estimate_hr(), 2)))
         st.metric(label="**Durchschnittliche Herzrate [Bpm] im angezeigten Zeitfenster:**", value = round(Instanz_von_Current_EKG.estimate_hr(), 2))
-
+        st.metric(label="**Länge der gesamten Zeitreihe in Sekunden:**", value = Instanz_von_Current_EKG.return_Länge_Zeitreihe())
         st.metric(label="**Testdatum:**", value = Instanz_von_Current_EKG.return_Test_Datum())
+        st.metric(label="**Dateiname:**", value = Instanz_von_Current_EKG.data[14:])
+
 
 
 
