@@ -2,6 +2,9 @@ import json
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import neurokit2 as nk
+import matplotlib.pyplot as plt
+import os
 from scipy.signal import find_peaks
 
 # %% Objekt-Welt
@@ -153,6 +156,12 @@ class EKGdata:
         df = self.df
         zeit = len(df) / (self.frequenz_Faktor)
         return zeit
+    
+    def compute_hrv(self):
+        ecg_signal = self.df['Messwerte in mV'].values
+        signals, info = nk.ecg_process(ecg_signal, sampling_rate = self.frequenz_Faktor)
+        hrv = nk.hrv_time(signals, sampling_rate = self.frequenz_Faktor)
+        return hrv
 
 
 
