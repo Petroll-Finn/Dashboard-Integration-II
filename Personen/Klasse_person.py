@@ -2,17 +2,17 @@ import json
 from datetime import datetime
 
 class Person:
-    
+    # Klasse zur Verwaltung von Personendaten und -operationen.
     @staticmethod
     def load_person_data():
-        """A Function that knows where te person Database is and returns a Dictionary with the Persons"""
+        # Eine Funktion, die weiß, wo sich die Personendatenbank befindet und ein Dictionary mit den Personen zurückgibt
         file = open("data/person_db.json")
         person_data = json.load(file)
         return person_data
 
     @staticmethod
     def get_person_list(person_data):
-        """A Function that takes the persons-dictionary and returns a list auf all person names"""
+        # Eine Funktion, die das Personen-Dictionary nimmt und eine Liste aller Personennamen zurückgibt
         list_of_names = []
 
         for eintrag in person_data:
@@ -21,8 +21,7 @@ class Person:
     
     @staticmethod
     def find_person_data_by_name(suchstring):
-        """ Eine Funktion der Nachname, Vorname als ein String übergeben wird
-        und die die Person als Dictionary zurück gibt"""
+        # Eine Funktion der Nachname, Vorname als ein String übergeben wird und die die Person als Dictionary zurück gibt
 
         person_data = Person.load_person_data()
         #print(suchstring)
@@ -47,6 +46,7 @@ class Person:
         person_data = Person.load_person_data()
         if search_id == "None":
             return "keien Eingabe"
+    # Lädt Personendaten nach ID.
 
         for person in person_data:
             if person["id"] == search_id:
@@ -59,17 +59,19 @@ class Person:
         self.lastname = person_dict["lastname"]
         self.picture_path = person_dict["picture_path"]
         self.id = person_dict["id"]
-    
+    # Initialisiert ein Person-Objekt.
+
     def calc_age(self):
         birth_year = int(self.date_of_birth)
         current_year = datetime.now().year
         age_years = current_year - birth_year
         return age_years
-    
+    # Berechnet das Alter der Person.
+
     def calc_max_heart_rate(self):
         max_hr_bpm = 220-self.calc_age()
         return (max_hr_bpm)
-
+    # Berechnet die maximale Herzfrequenz der Person.
     
 
 if __name__ == "__main__":
