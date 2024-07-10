@@ -316,6 +316,11 @@ if selected == "Personen und EKG":
             
             fig_Heartrate = Instanz_von_Current_EKG.plot_heartrate()
             st.plotly_chart(fig_Heartrate)
+            
+            Instanz_von_Current_EKG.compute_hrv()
+            st.metric(abel="**HRV_MeanNN:**",value = ekg.compute_hrv["HRV_MeanNN"])
+
+
 
 if selected == "CSV Analyse":
 

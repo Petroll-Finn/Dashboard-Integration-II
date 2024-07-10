@@ -182,6 +182,9 @@ if __name__ == "__main__":
     # print (ekg.df)
 
     print (ekg.return_Länge_Zeitreihe())
+    hrv = ekg.compute_hrv()
+    # print(hrv)
+    print(hrv["HRV_MeanNN"])
     # print (ekg.estimate_hr())
     # print (ekg.test())
     
