@@ -25,7 +25,7 @@ if selected == "Start Seite":
     
     st.title("# Start Seite")
     st.subheader ("Informationen")
-    st.write ("hier stehen einige Informationen und was die seite so Kann")
+    st.write ("""Die Webseite ermöglicht die Verwaltung von Benutzern und deren EKG-Daten. Benutzer können hinzugefügt, aktualisiert und deren EKG-Daten analysiert werden. Die EKG-Daten werden visuell dargestellt und mithilfe von Herzratenvariabilitätsanalysen ausgewertet. Zusätzlich können CSV-Dateien analysiert werden.""")
 
 
 if selected == "Benutzer Verwaltung":
