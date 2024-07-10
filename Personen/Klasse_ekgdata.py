@@ -160,7 +160,9 @@ class EKGdata:
     def compute_hrv(self):
         ecg_signal = self.df['Messwerte in mV'].values
         signals, info = nk.ecg_process(ecg_signal, sampling_rate = self.frequenz_Faktor)
+
         hrv = nk.hrv_time(signals, sampling_rate = self.frequenz_Faktor)
+
         return hrv
 
 
@@ -181,9 +183,10 @@ if __name__ == "__main__":
 
     # print (ekg.df)
 
-    print (ekg.return_Länge_Zeitreihe())
+    # print (ekg.return_Länge_Zeitreihe())
+
     hrv = ekg.compute_hrv()
-    # print(hrv)
+    print(hrv)
     print(hrv["HRV_MeanNN"])
     # print (ekg.estimate_hr())
     # print (ekg.test())
