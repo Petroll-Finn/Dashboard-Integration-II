@@ -12,14 +12,23 @@ from Personen import read_data, Klasse_ekgdata, Klasse_person
 from CSV_analyse import Einteilung_Zonen, Power_Curve
 
 
-
-
 with st.sidebar: 
     selected = option_menu (menu_title= "Menu", options= ["Start Seite", "Benutzer Verwaltung", "Personen und EKG", "CSV Analyse"])
 
 # Laden der Json Datei
 json_file_link = 'data/person_db_aktuell.json' ### Verwendete Json Datei
 data_json_aktuell = read_data.load_person_data(json_file_link)
+
+input_folder = os.path.join('Data', 'ekg_data')
+output_folder = os.path.join('Data', 'resampled_data')
+
+frequenz_faktor = 100
+old_link = "data/ekg_data/"
+new_link = "data/resampled_data/"
+
+# Daten werden nach Bedürfniss genutzt
+data_resampling.resample_and_changeLink_ekg_data (input_folder, output_folder, new_link, old_link, json_file_link)
+
 
 if selected == "Start Seite":
     
@@ -154,37 +163,40 @@ if selected == "Personen und EKG":
 
     st.title("# EKG APP")
 
-    st.subheader("Geresamplete Daten Verwenden?")
+    # st.subheader("Geresamplete Daten Verwenden?")
     # Checkbox erstellen
-    agree = st.checkbox("Ja, geresamplete Daten Verwenden")
+    # agree = st.checkbox("Ja, geresamplete Daten Verwenden")
     
     # Input und Output Ordner für Geresamplete Daten
-    input_folder = os.path.join('Data', 'ekg_data')
-    output_folder = os.path.join('Data', 'resampled_data')
+    # input_folder = os.path.join('Data', 'ekg_data')
+    # output_folder = os.path.join('Data', 'resampled_data')
 
     # frequenz_faktor = 100
 
     # Überprüfen ob Checkbox aktiviert ist
-    if agree:
-        st.write("Es werden die geresamplten Daten Verwendet.")
-        frequenz_faktor = 100 #für richtige berechnung der Herzrate, 100 wegen aufnamen der geresampleten Daten in [10 ms] schritten
+    # if agree:
+    #     st.write("Es werden die geresamplten Daten Verwendet.")
+    #     frequenz_faktor = 100 #für richtige berechnung der Herzrate, 100 wegen aufnamen der geresampleten Daten in [10 ms] schritten
 
-        old_link = "data/resampled_data/"
-        new_link = "data/ekg_data/"
+    #     old_link = "data/resampled_data/"
+    #     new_link = "data/ekg_data/"
 
-    else:
-        st.write("Es werden die originalen Daten genutzt")
-        frequenz_faktor = 500 #für richtige berechnung der Herzrate, 500 wegen aufnamen der Daten in [2 ms] schritten
+    # else:
+    #     st.write("Es werden die originalen Daten genutzt")
+    #     frequenz_faktor = 500 #für richtige berechnung der Herzrate, 500 wegen aufnamen der Daten in [2 ms] schritten
 
-        old_link = "data/ekg_data/"
-        new_link = "data/resampled_data/"
+    #     old_link = "data/ekg_data/"
+    #     new_link = "data/resampled_data/"
+
+    # old_link = "data/ekg_data/"
+    # new_link = "data/resampled_data/"
     
-    # Daten werden nach Bedürfniss genutzt
-    data_resampling.resample_and_changeLink_ekg_data (input_folder, output_folder, new_link, old_link, json_file_link)
+    # # Daten werden nach Bedürfniss genutzt
+    # data_resampling.resample_and_changeLink_ekg_data (input_folder, output_folder, new_link, old_link, json_file_link)
 
     ### !!! NAMEN EINFÜGEN!!!
     list_person_names = read_data.get_person_list(data_json_aktuell)
-    # print (list_person_names)
+
 
     # Session State wird leer angelegt, solange er noch nicht existiert
     if 'current_user' not in st.session_state:
@@ -192,11 +204,7 @@ if selected == "Personen und EKG":
 
     # Dieses Mal speichern wir die Auswahl als Session State
     st.session_state.current_user = st.selectbox('Versuchsperson wählen', options = list_person_names, key="sbVersuchsperson")
-    # st.write (st.session_state.current_user)
 
-    # Json Daten Laden
-    # Person_Json = read_data.load_person_data(link)
-    # Person_Json1 = data_json_aktuell
 
     ### KLASSE PERSON
     # Weise Personen ID zu
@@ -251,9 +259,6 @@ if selected == "Personen und EKG":
             # Suche den Pfad zum Bild, aber nur wenn der Name bekannt ist
             if st.session_state.current_user in list_person_names:
                 st.session_state.picture_path = read_data.find_person_data_by_name(st.session_state.current_user, data_json_aktuell)["picture_path"]
-
-            # Öffne das Bild und Zeige es an
-            # image = Image.open("../" + st.session_state.picture_path)
             
             image = Image.open(st.session_state.picture_path)
             st.image(image)
@@ -274,7 +279,6 @@ if selected == "Personen und EKG":
         st.session_state.current_EKG_test = st.selectbox('EKG Test [ID]', options = liste_ekg_tests, key="sbEKG_Test")
        
         # Erstelle Instanz EKG test
-
         EKG_Dict = Klasse_ekgdata.EKGdata.load_by_id (st.session_state.current_EKG_test, data_json_aktuell)
         Instanz_von_Current_EKG = Klasse_ekgdata.EKGdata(EKG_Dict)
         
@@ -293,7 +297,6 @@ if selected == "Personen und EKG":
 
         Instanz_von_Current_EKG.set_empty_values(start_wert, end_wert, frequenz_faktor)
 
-        
         # erstellen des Plots für das EKG Signal
         fig_Ekg = Instanz_von_Current_EKG.plot_time_series()
         st.plotly_chart(fig_Ekg)
@@ -301,11 +304,6 @@ if selected == "Personen und EKG":
         tab3, tab4 = st.tabs(["Daten", "Eigenschaften der Herzrate"])
 
         with tab3:
-            # st.markdown ("**Dateiname:**" )
-            # st.write (Instanz_von_Current_EKG.data[14:])           
-
-            # st.markdown ("**Durchschnittliche Herzrate [Bpm] im angezeigten Zeitfenster:**" )
-            # st.write (str(round(Instanz_von_Current_EKG.estimate_hr(), 2)))
 
             st.metric(label="**Länge der gesamten Zeitreihe in Sekunden:**", value = round(Instanz_von_Current_EKG.return_Länge_Zeitreihe(), 2))
             st.metric(label="**Testdatum:**", value = Instanz_von_Current_EKG.return_Test_Datum())
@@ -324,22 +322,22 @@ if selected == "Personen und EKG":
             fig_Heartrate = Instanz_von_Current_EKG.plot_heartrate()
             st.plotly_chart(fig_Heartrate)
             
-            st.subheader("Analyse Herzvariabilität im Gesamten Bereich")
+            st.subheader("Analyse der Herzvariabilität")
             Herzvariabilität_overall = Instanz_von_Current_EKG.compute_hrv_overall()
+            Herzvariabilität_bereich = Instanz_von_Current_EKG.compute_hrv_Bereich()
 
-            st.metric(label="**HRV Mittelwert in Sekunden:**", value = (round ((Herzvariabilität_overall["HRV_MeanNN"]/ 1000 ),3  )))
-            st.metric(label="**Maximale Zeit zwischen zwei Spitzen in Sekunden:**", value = (round ((Herzvariabilität_overall["HRV_MinNN"]/ 1000 ),3  )))
-            st.metric(label="**Minimale Zeit zwischen zwei Spitzen in Sekunden:**", value = (round ((Herzvariabilität_overall["HRV_MaxNN"]/ 1000 ),3  )))
-
-            # st.subheader("Analyse Herzvariabilität im Ausgewählten Bereich")
-            # Herzvariabilität_bereich = Instanz_von_Current_EKG.compute_hrv_Bereich()
-
-            # st.metric(label="**HRV Mittelwert in Sekunden:**", value = (round ((Herzvariabilität_bereich["HRV_MeanNN"]/ 1000 ),3  )))
-            # st.metric(label="**Maximale Zeit zwischen zwei Spitzen in Sekunden:**", value = (round ((Herzvariabilität_bereich["HRV_MinNN"]/ 1000 ),3  )))
-            # st.metric(label="**Minimale Zeit zwischen zwei Spitzen in Sekunden:**", value = (round ((Herzvariabilität_bereich["HRV_MaxNN"]/ 1000 ),3  )))
-
-            
-
+            col11, col22 = st.columns(2)
+            with col11:
+                st.write ("__Im ganzen Zeit Bereich__")
+                st.metric(label="**HRV Mittelwert [s]:**", value = (round ((Herzvariabilität_overall["HRV_MeanNN"]/ 1000 ),3  )))
+                st.metric(label="**Maximale Zeit zwischen zwei Spitzen [s]:**", value = (round ((Herzvariabilität_overall["HRV_MinNN"]/ 1000 ),3  )))
+                st.metric(label="**Minimale Zeit zwischen zwei Spitzen [s]:**", value = (round ((Herzvariabilität_overall["HRV_MaxNN"]/ 1000 ),3  )))
+ 
+            with col22:
+                st.write ("__Im ausgewählten Zeit Bereich__")
+                st.metric(label="**HRV Mittelwert [s]:**", value = (round ((Herzvariabilität_bereich["HRV_MeanNN"]/ 1000 ),3  )))
+                st.metric(label="**Maximale Zeit zwischen zwei Spitzen [s]:**", value = (round ((Herzvariabilität_bereich["HRV_MinNN"]/ 1000 ),3  )))
+                st.metric(label="**Minimale Zeit zwischen zwei Spitzen [s]:**", value = (round ((Herzvariabilität_bereich["HRV_MaxNN"]/ 1000 ),3  )))
 
 
 if selected == "CSV Analyse":
@@ -349,10 +347,13 @@ if selected == "CSV Analyse":
 
     with tab11:
             
-            eingabe_wert = st.number_input('Geben sie ihre maximale Herzfrequenz ein:', min_value=120, max_value=250, value = 190)
-    
+            eingabe_wert_frequenz = st.number_input('Geben sie ihre maximale Herzfrequenz ein:', min_value=120, max_value=250, value = 190)
+            # eingabe_wert_frequenz = Instanz_von_Current_user.calc_max_heart_rate()
+
+            st.write ("Ihre Maximale Herzfrequenz beträgt " + str(eingabe_wert_frequenz))
+            
             df = Einteilung_Zonen.load_activity()
-            fig = Einteilung_Zonen.make_plot_EKG(df,eingabe_wert)
+            fig = Einteilung_Zonen.make_plot_EKG(df,eingabe_wert_frequenz)
             st.plotly_chart(fig)
 
             # Zwei tabs erzeugen
@@ -365,11 +366,10 @@ if selected == "CSV Analyse":
                 st.metric(label="Mittelwert Leistung [w]", value = round(Einteilung_Zonen.mittelwert (df), 4))
                 st.metric(label="Maximale Leistung [w]", value = Einteilung_Zonen.max_Leistung (df))
 
-
             # Text im zweiten Tab
             with tab14:
                 st.subheader('Verbrachte Zeit und Durchschnittliche Leistung der Zonen')
-                data = Einteilung_Zonen.calc_time_and_average_in_Zones(df,eingabe_wert)
+                data = Einteilung_Zonen.calc_time_and_average_in_Zones(df,eingabe_wert_frequenz)
                 df_Zones = pd.DataFrame(data)
                 df_Zones.set_index('Zone', inplace=True)
                 st.dataframe(df_Zones)

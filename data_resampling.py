@@ -35,7 +35,7 @@ def resample_and_changeLink_ekg_data(input_folder, output_folder, new_result_lin
                     if ekg_test['result_link'].replace("\\", "/") == old_result_link:
                         ekg_test['result_link'] = new_result_link
 
-
+    
     with open("data/person_db_aktuell.json", 'w') as file:
         json.dump(data, file, indent=4)
 

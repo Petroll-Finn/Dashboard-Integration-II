@@ -9,12 +9,12 @@
             {
                 "id": 1,
                 "date": "10.2.2023",
-                "result_link": "data/ekg_data/01_Ruhe.txt"
+                "result_link": "data/resampled_data/01_Ruhe.txt"
             },
             {
                 "id": 2,
                 "date": "11.3.2023",
-                "result_link": "data/ekg_data/04_Belastung.txt"
+                "result_link": "data/resampled_data/04_Belastung.txt"
             }
         ]
     },
@@ -28,7 +28,7 @@
             {
                 "id": 3,
                 "date": "10.2.2023",
-                "result_link": "data/ekg_data/02_Ruhe.txt"
+                "result_link": "data/resampled_data/02_Ruhe.txt"
             }
         ]
     },
@@ -42,7 +42,7 @@
             {
                 "id": 4,
                 "date": "11.3.2023",
-                "result_link": "data/ekg_data/03_Ruhe.txt"
+                "result_link": "data/resampled_data/03_Ruhe.txt"
             }
         ]
     },
@@ -56,7 +56,7 @@
             {
                 "id": 5,
                 "date": "",
-                "result_link": "data/ekg_data/4_5_04_Belastung.txt"
+                "result_link": "data/resampled_data/4_5_04_Belastung.txt"
             }
         ]
     },
@@ -70,7 +70,12 @@
             {
                 "id": 6,
                 "date": "10.07.2024",
-                "result_link": "data/ekg_data/5_6_03_Ruhe.txt"
+                "result_link": "data/resampled_data/5_6_03_Ruhe.txt"
+            },
+            {
+                "id": 7,
+                "date": "11.07.2024",
+                "result_link": "data/resampled_data/5_7_01_Ruhe.txt"
             }
         ]
     }
