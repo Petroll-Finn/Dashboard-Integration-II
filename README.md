@@ -39,8 +39,10 @@ Bestehenden Benutzer aktualisieren:
 
 ### Personen und EKG
 
-Resample-Option: Benutzer kann wählen, ob die geresampleten Daten verwendet werden sollen.
-Versuchsperson auswählen: Eine Person aus einer Liste von Versuchspersonen auswählen.
+Resample-Option: Benutzer kann wählen, ob die geresampleten Daten verwendet werden sollen
+
+Versuchsperson auswählen: Eine Person aus einer Liste von Versuchspersonen auswählen
+
 Versuchsperson Informationen:
     Personendaten anzeigen: Vorname, Nachname, Geburtsjahr, Alter und maximale Herzfrequenz der ausgewählten Person anzeigen.
 EKG-Daten:
