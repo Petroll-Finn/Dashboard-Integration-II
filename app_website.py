@@ -16,49 +16,62 @@ with st.sidebar:
 if selected == "Personen":
 
     st.title("# EKG APP")# Zwei tabs erzeugen
+
+    st.subheader("Geresamplete Daten Verwenden?")
+    # Checkbox erstellen
+    agree = st.checkbox("Ja, geresamplete Daten Verwenden")
+    
+    # Überprüfen ob Checkbox aktiviert ist
+    if agree:
+        st.write("Es werden die geresamplte Daten Verwendet.")
+        frequenz_faktor = 100 #für richtige berechnung der Herzrate, 100 wegen aufnamen der Daten in [10 ms] schritten
+        link = "data/person_db_resampled.json"
+    else:
+        st.write("Es werden die originalen Daten genutzt")
+        frequenz_faktor = 500 #für richtige berechnung der Herzrate, 500 wegen aufnamen der Daten in [2 ms] schritten
+        link = "data/person_db.json"    
+
+    ### !!! NAMEN EINFÜGEN!!!
+    list_person_names = read_data.get_person_list(link)
+    # print (list_person_names)
+
+    # Session State wird leer angelegt, solange er noch nicht existiert
+    if 'current_user' not in st.session_state:
+        st.session_state.current_user = 'None'
+
+    # Dieses Mal speichern wir die Auswahl als Session State
+    st.session_state.current_user = st.selectbox('Versuchsperson wählen', options = list_person_names, key="sbVersuchsperson")
+    # st.write (st.session_state.current_user)
+
+    # Json Daten Laden
+    Person_Json = read_data.load_person_data(link)
+
+    ### KLASSE PERSON
+    # Weise Personen ID zu
+    for names, ID_vergabe in zip(list_person_names, range(len(list_person_names))):
+        if st.session_state.current_user == names:
+            ID_person = ID_vergabe + 1
+            
+    # Erstelle Instanz Person
+    Person_Dict = Klasse_person.Person.load_by_id(ID_person)
+    Instanz_von_Current_user = Klasse_person.Person(Person_Dict)
+
     tab1, tab2 = st.tabs(["Versuchsperson Informationen", "EKG-Daten"])
 
- # Text im ersten Tab 
+    # Text im ersten Tab 
     with tab1:
-
-        st.subheader('Versuchsperson Informationen')
         # Zwei Spalten erzeugen
         col1, col2 = st.columns(2, gap = "large")
 
-        # Text in der ersten Spalte
         with col1:
-            ### !!! NAMEN EINFÜGEN!!!
-            list_person_names = read_data.get_person_list()
-            # print (list_person_names)
-
-            # Session State wird leer angelegt, solange er noch nicht existiert
-            if 'current_user' not in st.session_state:
-                st.session_state.current_user = 'None'
-
-            # Dieses Mal speichern wir die Auswahl als Session State
-            st.session_state.current_user = st.selectbox('Versuchsperson wählen', options = list_person_names, key="sbVersuchsperson")
-            # st.write (st.session_state.current_user)
-
-            # Json Daten Laden
-            Person_Json = read_data.load_person_data()
-
-            ### KLASSE PERSON
-            # Weise Personen ID zu
-            for names, ID_vergabe in zip(list_person_names, range(len(list_person_names))):
-                if st.session_state.current_user == names:
-                    ID_person = ID_vergabe + 1
-            
-            # Erstelle Instanz Person
-            Person_Dict = Klasse_person.Person.load_by_id(ID_person)
-            Instanz_von_Current_user = Klasse_person.Person(Person_Dict)
 
             # Personen Daten
             st.subheader ('Personen Daten:')
 
             df_Personendaten = pd.DataFrame(columns=['Spalte1', 'Spalte2'])
-            df_Personendaten = df_Personendaten._append({'Spalte1': "Vorname: ", 'Spalte2': read_data.find_person_data_by_name(st.session_state.current_user)["firstname"]}, ignore_index=True)
-            df_Personendaten = df_Personendaten._append({'Spalte1': "Nachname: ", 'Spalte2': read_data.find_person_data_by_name(st.session_state.current_user)["lastname"]}, ignore_index=True)
-            df_Personendaten = df_Personendaten._append({'Spalte1': "Geburtsjahr: ", 'Spalte2': str (read_data.find_person_data_by_name(st.session_state.current_user)["date_of_birth"])}, ignore_index=True)
+            df_Personendaten = df_Personendaten._append({'Spalte1': "Vorname: ", 'Spalte2': read_data.find_person_data_by_name(st.session_state.current_user, link)["firstname"]}, ignore_index=True)
+            df_Personendaten = df_Personendaten._append({'Spalte1': "Nachname: ", 'Spalte2': read_data.find_person_data_by_name(st.session_state.current_user, link)["lastname"]}, ignore_index=True)
+            df_Personendaten = df_Personendaten._append({'Spalte1': "Geburtsjahr: ", 'Spalte2': str (read_data.find_person_data_by_name(st.session_state.current_user, link)["date_of_birth"])}, ignore_index=True)
             df_Personendaten = df_Personendaten._append({'Spalte1': "Alter: ", 'Spalte2': str (Instanz_von_Current_user.calc_age())}, ignore_index=True)
             df_Personendaten = df_Personendaten._append({'Spalte1': "Maximale Herzfrequenz: ", 'Spalte2': str (Instanz_von_Current_user.calc_max_heart_rate())}, ignore_index=True)
             
@@ -74,20 +87,6 @@ if selected == "Personen":
             # Streamlit-Anzeige
             st.write(html_table, unsafe_allow_html=True)
 
-            
-            # data = {'Bezeichnung': ['Vorname:', 'Nachname:', 'Geburtsjahr:', 'Alter:', 'Maximale Herzfrequenz:'] ,
-            #         'Daten': [read_data.find_person_data_by_name(st.session_state.current_user)["firstname"],
-            #                     read_data.find_person_data_by_name(st.session_state.current_user)["lastname"],
-            #                     str (read_data.find_person_data_by_name(st.session_state.current_user)["date_of_birth"]),
-            #                     str (Instanz_von_Current_user.calc_age()),
-            #                     str (Instanz_von_Current_user.calc_max_heart_rate()),]
-            #                     }
-            # df_Data = pd.DataFrame (data)
-            # st.dataframe (df_Data)
-            #Testen
-            # st.write (str (Instanz_von_Current_user.calc_age()))
-            # st.write (str (Instanz_von_Current_user.calc_max_heart_rate()))
-
 
            # Bild in der zweiten Spalte
         with col2:
@@ -99,7 +98,7 @@ if selected == "Personen":
 
             # Suche den Pfad zum Bild, aber nur wenn der Name bekannt ist
             if st.session_state.current_user in list_person_names:
-                st.session_state.picture_path = read_data.find_person_data_by_name(st.session_state.current_user)["picture_path"]
+                st.session_state.picture_path = read_data.find_person_data_by_name(st.session_state.current_user, link)["picture_path"]
 
             # Öffne das Bild und Zeige es an
             # image = Image.open("../" + st.session_state.picture_path)
@@ -112,8 +111,6 @@ if selected == "Personen":
 
  # Text im zweiten Tab
     with tab2:
-        
-        
 
         st.subheader('EKG-Daten')
 
@@ -125,9 +122,12 @@ if selected == "Personen":
         st.session_state.current_EKG_test = st.selectbox('EKG Test [ID]', options = liste_ekg_tests, key="sbEKG_Test")
        
         # Erstelle Instanz EKG test
-        EKG_Dict = Klasse_ekgdata.EKGdata.load_by_id (st.session_state.current_EKG_test)
+        EKG_Dict = Klasse_ekgdata.EKGdata.load_by_id (st.session_state.current_EKG_test, link)
         Instanz_von_Current_EKG = Klasse_ekgdata.EKGdata(EKG_Dict)
         
+        
+        # Zeitbereich auswählen
+        st.subheader("Zeitbereich auswählen")
 
         start_wert, end_wert = st.slider(
                 'Wähle den Bereich',
@@ -136,9 +136,9 @@ if selected == "Personen":
 
         st.write(f'ausgewählter Start Wert: {start_wert}, ausgewählter End Wert: {end_wert}')
 
-        Instanz_von_Current_EKG.set_start_und_end_wert(start_wert, end_wert)
+        Instanz_von_Current_EKG.set_empty_values(start_wert, end_wert, frequenz_faktor)
 
-
+        
         # erstellen des Plots für das EKG Signal
         fig_Ekg = Instanz_von_Current_EKG.plot_time_series()
         st.plotly_chart(fig_Ekg)
@@ -146,10 +146,8 @@ if selected == "Personen":
         tab3, tab4 = st.tabs(["Daten", "Eigenschaften der Herz Frequenz"])
 
         with tab3:
-
             # st.markdown ("**Dateiname:**" )
-            # st.write (Instanz_von_Current_EKG.data[14:])
-            
+            # st.write (Instanz_von_Current_EKG.data[14:])           
 
             # st.markdown ("**Durchschnittliche Herzrate [Bpm] im angezeigten Zeitfenster:**" )
             # st.write (str(round(Instanz_von_Current_EKG.estimate_hr(), 2)))

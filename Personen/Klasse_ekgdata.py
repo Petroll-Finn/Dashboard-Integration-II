@@ -12,14 +12,14 @@ class EKGdata:
 
 ## Konstruktor der Klasse soll die Daten einlesen
     @staticmethod
-    def load_Data():
-        file = open("data/person_db.json")
+    def load_Data(link):
+        file = open(link)
         person_data = json.load(file)
         return person_data
     
     @staticmethod
-    def load_by_id (id_EKG):
-        person_data = EKGdata.load_Data()
+    def load_by_id (id_EKG, link):
+        person_data = EKGdata.load_Data(link)
         # print (len(person_data))
         for eintrag_person in range(len(person_data)):
             # print (eintrag_person)
@@ -39,10 +39,13 @@ class EKGdata:
         
         self.start_wert = None
         self.end_wert = None
+        self.frequenz_Faktor = None
+
     
-    def set_start_und_end_wert(self, start, end):
+    def set_empty_values(self, start, end, frequenz_Faktor ):
         self.start_wert = start
         self.end_wert = end
+        self.frequenz_Faktor = frequenz_Faktor
 
 
     def make_plot(self):
@@ -99,7 +102,7 @@ class EKGdata:
         self.peaks_1, _ = self.find_peaks()
         peak_differenz_1 = [self.peaks_1[i+1] - self.peaks_1[i] for i in range(len(self.peaks_1)-1)]
         durchschnittliche_peak_diff_1 = sum(peak_differenz_1) / len(peak_differenz_1)
-        hr_overall= 60 / (durchschnittliche_peak_diff_1 / 500) # 500 wegen aufnamen der Daten in [2 ms] schritten
+        hr_overall= 60 / (durchschnittliche_peak_diff_1 / self.frequenz_Faktor)
 
         #Berechnung der Durchschnittlichen Herzrate im Ausgewählten Bereich
         _, self.peaks_2 = self.find_peaks()
@@ -107,13 +110,13 @@ class EKGdata:
 
         #division durch Null Error beheben, wenn nur ein Peak im Bereich
         if len(peak_differenz_2) == 0:
-            print (len(peak_differenz_2))
+            # print (len(peak_differenz_2))
             hr_bereich = 0
 
         else:
             durchschnittliche_peak_diff_2 = sum(peak_differenz_2) / len(peak_differenz_2)
-            print (len(peak_differenz_2))
-            hr_bereich= 60 / (durchschnittliche_peak_diff_2 / 500) # 500 wegen aufnamen der Daten in [2 ms] schritten
+            # print (len(peak_differenz_2))
+            hr_bereich= 60 / (durchschnittliche_peak_diff_2 / self.frequenz_Faktor) 
         
 
         return hr_overall, hr_bereich
@@ -145,9 +148,9 @@ class EKGdata:
         datum = self.date
         return (datum)
     
-    def return_Länge_Zeitreihe (self):
+    def return_Länge_Zeitreihe (self, ):
         df = self.df
-        zeit = len(df) / 500
+        zeit = len(df) / (500)
         return zeit
 
 

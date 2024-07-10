@@ -1,15 +1,16 @@
 import json
 import pandas as pd
 
-def load_person_data():
+def load_person_data(link):
     """A Function that knows where the person database is and returns a dictionary with the persons"""
-    file = open("data/person_db.json")
+    # file = open("data/person_db.json")
+    file = open(link)
     person_data = json.load(file)
     return person_data
 
-def get_person_list():
+def get_person_list(link):
     """A Function that takes the persons-dictionary and returns a list auf all person names"""
-    person_data = load_person_data()
+    person_data = load_person_data(link)
 
     list1 = []
     for Eintrag in person_data:
@@ -18,11 +19,11 @@ def get_person_list():
     return list1
 
 
-def find_person_data_by_name(suchstring):
+def find_person_data_by_name(suchstring, link):
     """ Eine Funktion der Nachname, Vorname als ein String übergeben wird
     und die die Person als Dictionary zurück gibt"""
 
-    person_data = load_person_data()
+    person_data = load_person_data(link)
     #print(suchstring)
     if suchstring == "None":
         return {}
