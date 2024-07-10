@@ -45,6 +45,7 @@ python -m streamlit run app_website.py
 
 **Versuchsperson Informationen:**
     Personendaten anzeigen: Vorname, Nachname, Geburtsjahr, Alter und maximale Herzfrequenz der ausgewählten Person anzeigen.
+    
 **EKG-Daten:**
     EKG-Daten anzeigen und analysieren: EKG-Daten der ausgewählten Person anzeigen und analysieren. Es werden verschiedene Plots und Herzratenberechnungen durchgeführt.
 
