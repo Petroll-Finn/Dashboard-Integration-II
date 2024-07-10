@@ -1,38 +1,182 @@
 import streamlit as st
 import pandas as pd
 import math
-
-from Personen import read_data, Klasse_ekgdata, Klasse_person
-from CSV_analyse import Einteilung_Zonen, Power_Curve
-
+import os
+import json
 from PIL import Image
 from streamlit_option_menu import option_menu
 
+import data_resampling
+from Benutzer_Verwaltung import funktion_verwaltung
+from Personen import read_data, Klasse_ekgdata, Klasse_person
+from CSV_analyse import Einteilung_Zonen, Power_Curve
+
+
+
 
 with st.sidebar: 
-    selected = option_menu (menu_title= "Menu", options= ["Personen", "CSV Analyse"])
+    selected = option_menu (menu_title= "Menu", options= ["Benutzer Verwaltung", "Personen und EKG", "CSV Analyse"])
+
+# Laden der Json Datei
+json_file_link = 'data/person_db_aktuell.json' ### Verwendete Json Datei
+data_json_aktuell = read_data.load_person_data(json_file_link)
+
+if selected == "Benutzer Verwaltung":
+
+    st.title("# Benutzer Verwaltung")
+    
+    #Auswählen was man machen möchte
+    option = st.selectbox("Aktion auswählen", ("Neuen Benutzer hinzufügen", "Bestehenden Benutzer aktualisieren"))
+
+    if option == "Neuen Benutzer hinzufügen":
+
+        user_id = funktion_verwaltung.get_next_user_id(data_json_aktuell)
+        firstname = st.text_input("Vorname")
+        lastname = st.text_input("Nachname")
+        date_of_birth = st.number_input("Geburtsjahr", min_value=1940, max_value=2025, value =2000, step=1)
+
+        # Bild hochladen
+        uploaded_picture_Person = st.file_uploader("Bild Datei hochladen", type=["jpg", "jpeg", "png"])
+        picture_path = None
+
+        # link hinzufügen
+        if uploaded_picture_Person is not None:
+            picture_filename = f"{user_id}_{uploaded_picture_Person.name}"
+            picture_path = f"data/pictures/{picture_filename}"
+            with open(picture_path, "wb") as f:
+                f.write(uploaded_picture_Person.getbuffer())
+            st.success(f"Bild {uploaded_picture_Person.name} hochgeladen")
+
+        # Ekg Datei hochladen
+        uploaded_file_EKG = st.file_uploader("EKG Datei hochladen", type=["txt"])
+        ekg_tests = []
+
+        # link hinzufügen
+        if uploaded_file_EKG is not None:
+            ekg_id = funktion_verwaltung.get_next_ekg_id(data_json_aktuell)
+            ekg_date = st.text_input("EKG Datum")
+            ekg_filename = f"{user_id}_{ekg_id}_{uploaded_file_EKG.name}"
+            ekg_result_link = f"data/ekg_data/{ekg_filename}"
+
+            with open(ekg_result_link, "wb") as f:
+                f.write(uploaded_file_EKG.getbuffer())
+            st.success(f"Datei {uploaded_file_EKG.name} hochgeladen")
+
+            ekg_tests.append({
+                "id": ekg_id,
+                "date": ekg_date,
+                "result_link": ekg_result_link
+            })
+
+        user_info = {
+            "id": user_id,
+            "date_of_birth": date_of_birth,
+            "firstname": firstname,
+            "lastname": lastname,
+            "picture_path": picture_path,
+            "ekg_tests": ekg_tests }
+
+        # anzeigen ob anfrage erfolgreich war
+        if st.button("Benutzer hinzufügen"):
+            funktion_verwaltung.manage_user(json_file_link, user_info)
+            st.success("Neuer Benutzer hinzugefügt!")
+            st.session_state.data_json_aktuell = data_json_aktuell
 
 
-if selected == "Personen":
+    if option == "Bestehenden Benutzer aktualisieren":
 
-    st.title("# EKG APP")# Zwei tabs erzeugen
+        user_options = {f"{person['id']} - {person['firstname']} {person['lastname']}": person['id'] for person in data_json_aktuell}
+        selected_user = st.selectbox("Wähle einen Benutzer", list(user_options.keys()))
+        selected_user_id = user_options[selected_user]
+
+        user_info = next((person for person in data_json_aktuell if person['id'] == selected_user_id), None)
+
+        if user_info:
+            firstname = st.text_input("Vorname", value=user_info['firstname'])
+            lastname = st.text_input("Nachname", value=user_info['lastname'])
+            date_of_birth = st.number_input("Geburtsjahr", min_value = 1940, max_value = 2025, step = 1, value = user_info['date_of_birth'])
+
+            # Bilddatei aktualisieren
+            if st.checkbox("Bild Datei aktualisieren"):
+                uploaded_picture_Person_New = st.file_uploader("Neue Bild Datei hochladen", type=["jpg", "jpeg", "png"])
+                if uploaded_picture_Person_New is not None:
+                    picture_filename = f"{selected_user_id}_{uploaded_picture_Person_New.name}"
+                    picture_path = f"data/pictures/{picture_filename}"
+                    with open(picture_path, "wb") as f:
+                        f.write(uploaded_picture_Person_New.getbuffer())
+                    st.success(f"Bild {uploaded_picture_Person_New.name} hochgeladen")
+                    user_info['picture_path'] = picture_path
+
+            # Egk Datei aktualisieren
+            if st.checkbox("EKG Datei hinzufügen"):
+                uploaded_EKG_file_New = st.file_uploader("Neue EKG Datei hochladen", type=["txt"])
+                if uploaded_EKG_file_New is not None:
+                    ekg_id = funktion_verwaltung.get_next_ekg_id(data_json_aktuell)
+                    ekg_date = st.text_input("EKG Datum")
+                    ekg_filename = f"{selected_user_id}_{ekg_id}_{uploaded_EKG_file_New.name}"
+                    ekg_result_link = f"data/ekg_data/{ekg_filename}"
+
+                    with open(ekg_result_link, "wb") as f:
+                        f.write(uploaded_EKG_file_New.getbuffer())
+                    st.success(f"Datei {uploaded_EKG_file_New.name} hochgeladen")
+
+                    user_info['ekg_tests'].append({
+                        "id": ekg_id,
+                        "date": ekg_date,
+                        "result_link": ekg_result_link
+                    })
+
+            user_info['firstname'] = firstname
+            user_info['lastname'] = lastname
+            user_info['date_of_birth'] = date_of_birth
+
+            # anzeigen ob anfrage erfolgreich war
+            if st.button("Benutzer aktualisieren"):
+                funktion_verwaltung.manage_user(json_file_link, user_info, update=True)
+                st.success("Benutzer aktualisiert!")
+                st.session_state.data_json_aktuell = data_json_aktuell
+
+    if 'data' not in st.session_state:
+        json_file = 'data/person_db_aktuell.json'
+        with open(json_file, 'r') as file:
+            st.session_state.data = json.load(file)
+    
+
+
+if selected == "Personen und EKG":
+
+    st.title("# EKG APP")
 
     st.subheader("Geresamplete Daten Verwenden?")
     # Checkbox erstellen
     agree = st.checkbox("Ja, geresamplete Daten Verwenden")
     
+    # Input und Output Ordner für Geresamplete Daten
+    input_folder = os.path.join('Data', 'ekg_data')
+    output_folder = os.path.join('Data', 'resampled_data')
+
+    frequenz_faktor = 500
+
     # Überprüfen ob Checkbox aktiviert ist
     if agree:
-        st.write("Es werden die geresamplte Daten Verwendet.")
-        frequenz_faktor = 100 #für richtige berechnung der Herzrate, 100 wegen aufnamen der Daten in [10 ms] schritten
-        link = "data/person_db_resampled.json"
+        st.write("Es werden die geresamplten Daten Verwendet.")
+        frequenz_faktor = 500 #für richtige berechnung der Herzrate, 100 wegen aufnamen der Daten in [10 ms] schritten
+
+        old_link = "data/ekg_data/"
+        new_link = "data/resampled_data/"
+
     else:
         st.write("Es werden die originalen Daten genutzt")
-        frequenz_faktor = 500 #für richtige berechnung der Herzrate, 500 wegen aufnamen der Daten in [2 ms] schritten
-        link = "data/person_db.json"    
+        frequenz_faktor = 100 #für richtige berechnung der Herzrate, 500 wegen aufnamen der Daten in [2 ms] schritten
+
+        old_link = "data/resampled_data/"
+        new_link = "data/ekg_data/"
+    
+    # Daten werden nach Bedürfniss genutzt
+    data_resampling.resample_and_changeLink_ekg_data (input_folder, output_folder, new_link, old_link, json_file_link)
 
     ### !!! NAMEN EINFÜGEN!!!
-    list_person_names = read_data.get_person_list(link)
+    list_person_names = read_data.get_person_list(data_json_aktuell)
     # print (list_person_names)
 
     # Session State wird leer angelegt, solange er noch nicht existiert
@@ -44,7 +188,8 @@ if selected == "Personen":
     # st.write (st.session_state.current_user)
 
     # Json Daten Laden
-    Person_Json = read_data.load_person_data(link)
+    # Person_Json = read_data.load_person_data(link)
+    # Person_Json1 = data_json_aktuell
 
     ### KLASSE PERSON
     # Weise Personen ID zu
@@ -53,7 +198,7 @@ if selected == "Personen":
             ID_person = ID_vergabe + 1
             
     # Erstelle Instanz Person
-    Person_Dict = Klasse_person.Person.load_by_id(ID_person)
+    Person_Dict = Klasse_person.Person.load_by_id(ID_person, data_json_aktuell)
     Instanz_von_Current_user = Klasse_person.Person(Person_Dict)
 
     tab1, tab2 = st.tabs(["Versuchsperson Informationen", "EKG-Daten"])
@@ -69,9 +214,9 @@ if selected == "Personen":
             st.subheader ('Personen Daten:')
 
             df_Personendaten = pd.DataFrame(columns=['Spalte1', 'Spalte2'])
-            df_Personendaten = df_Personendaten._append({'Spalte1': "Vorname: ", 'Spalte2': read_data.find_person_data_by_name(st.session_state.current_user, link)["firstname"]}, ignore_index=True)
-            df_Personendaten = df_Personendaten._append({'Spalte1': "Nachname: ", 'Spalte2': read_data.find_person_data_by_name(st.session_state.current_user, link)["lastname"]}, ignore_index=True)
-            df_Personendaten = df_Personendaten._append({'Spalte1': "Geburtsjahr: ", 'Spalte2': str (read_data.find_person_data_by_name(st.session_state.current_user, link)["date_of_birth"])}, ignore_index=True)
+            df_Personendaten = df_Personendaten._append({'Spalte1': "Vorname: ", 'Spalte2': read_data.find_person_data_by_name(st.session_state.current_user, data_json_aktuell)["firstname"]}, ignore_index=True)
+            df_Personendaten = df_Personendaten._append({'Spalte1': "Nachname: ", 'Spalte2': read_data.find_person_data_by_name(st.session_state.current_user, data_json_aktuell)["lastname"]}, ignore_index=True)
+            df_Personendaten = df_Personendaten._append({'Spalte1': "Geburtsjahr: ", 'Spalte2': str (read_data.find_person_data_by_name(st.session_state.current_user, data_json_aktuell)["date_of_birth"])}, ignore_index=True)
             df_Personendaten = df_Personendaten._append({'Spalte1': "Alter: ", 'Spalte2': str (Instanz_von_Current_user.calc_age())}, ignore_index=True)
             df_Personendaten = df_Personendaten._append({'Spalte1': "Maximale Herzfrequenz: ", 'Spalte2': str (Instanz_von_Current_user.calc_max_heart_rate())}, ignore_index=True)
             
@@ -98,7 +243,7 @@ if selected == "Personen":
 
             # Suche den Pfad zum Bild, aber nur wenn der Name bekannt ist
             if st.session_state.current_user in list_person_names:
-                st.session_state.picture_path = read_data.find_person_data_by_name(st.session_state.current_user, link)["picture_path"]
+                st.session_state.picture_path = read_data.find_person_data_by_name(st.session_state.current_user, data_json_aktuell)["picture_path"]
 
             # Öffne das Bild und Zeige es an
             # image = Image.open("../" + st.session_state.picture_path)
@@ -122,9 +267,11 @@ if selected == "Personen":
         st.session_state.current_EKG_test = st.selectbox('EKG Test [ID]', options = liste_ekg_tests, key="sbEKG_Test")
        
         # Erstelle Instanz EKG test
-        EKG_Dict = Klasse_ekgdata.EKGdata.load_by_id (st.session_state.current_EKG_test, link)
+
+        EKG_Dict = Klasse_ekgdata.EKGdata.load_by_id (st.session_state.current_EKG_test, data_json_aktuell)
         Instanz_von_Current_EKG = Klasse_ekgdata.EKGdata(EKG_Dict)
         
+        Instanz_von_Current_EKG.set_empty_values(None, None, frequenz_faktor)
         
         # Zeitbereich auswählen
         st.subheader("Zeitbereich auswählen")
@@ -133,8 +280,9 @@ if selected == "Personen":
                 'Wähle den Bereich',
                 min_value=0 , max_value= math.ceil(Instanz_von_Current_EKG.return_Länge_Zeitreihe()), value=(1, 20)
             )
-
-        st.write(f'ausgewählter Start Wert: {start_wert}, ausgewählter End Wert: {end_wert}')
+        
+        st.write(f'__ausgewählter Start Wert:__ {start_wert}')
+        st.write(f'__ausgewählter End Wert:__   {end_wert}')
 
         Instanz_von_Current_EKG.set_empty_values(start_wert, end_wert, frequenz_faktor)
 
@@ -151,10 +299,10 @@ if selected == "Personen":
 
             # st.markdown ("**Durchschnittliche Herzrate [Bpm] im angezeigten Zeitfenster:**" )
             # st.write (str(round(Instanz_von_Current_EKG.estimate_hr(), 2)))
-            
+
             st.metric(label="**Länge der gesamten Zeitreihe in Sekunden:**", value = round(Instanz_von_Current_EKG.return_Länge_Zeitreihe(), 2))
             st.metric(label="**Testdatum:**", value = Instanz_von_Current_EKG.return_Test_Datum())
-            st.metric(label="**Dateiname:**", value = Instanz_von_Current_EKG.data[14:])
+            st.metric(label="**Dateipfad:**", value = Instanz_von_Current_EKG.data)
         
         with tab4:
 

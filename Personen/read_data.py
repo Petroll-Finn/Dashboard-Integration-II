@@ -3,15 +3,15 @@ import pandas as pd
 
 def load_person_data(link):
     # Eine Funktion, die weiß, wo sich die Personendatenbank befindet und ein Dictionary mit den Personen zurückgibt
-    # file = open("data/person_db.json")
     file = open(link)
     person_data = json.load(file)
     return person_data
 
-def get_person_list(link):
+def get_person_list(person_data_Dict):
     # Eine Funktion, die das Personen-Dictionary nimmt und eine Liste mit allen Personennamen zurückgibt
-    person_data = load_person_data(link)
-
+    # person_data = load_person_data(link)
+    person_data = person_data_Dict
+    
     list1 = []
     for Eintrag in person_data:
         list1.append(Eintrag['lastname']+ ", " +  Eintrag["firstname"])
@@ -19,10 +19,11 @@ def get_person_list(link):
     return list1
 
 
-def find_person_data_by_name(suchstring, link):
+def find_person_data_by_name(suchstring, person_data_Dict):
     # Eine Funktion der Nachname, Vorname als ein String übergeben wird und die die Person als Dictionary zurück gibt
+    # person_data = load_person_data(link)
+    person_data = person_data_Dict
 
-    person_data = load_person_data(link)
     #print(suchstring)
     if suchstring == "None":
         return {}

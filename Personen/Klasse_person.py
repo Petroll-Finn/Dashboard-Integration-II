@@ -4,9 +4,9 @@ from datetime import datetime
 class Person:
     # Klasse zur Verwaltung von Personendaten und -operationen.
     @staticmethod
-    def load_person_data():
+    def load_person_data(link):
         # Eine Funktion, die weiß, wo sich die Personendatenbank befindet und ein Dictionary mit den Personen zurückgibt
-        file = open("data/person_db.json")
+        file = open(link)
         person_data = json.load(file)
         return person_data
 
@@ -42,8 +42,10 @@ class Person:
             return {}
     
     @staticmethod   
-    def load_by_id(search_id):
-        person_data = Person.load_person_data()
+    def load_by_id(search_id, person_data_Dict):
+        # person_data = Person.load_person_data()
+        person_data = person_data_Dict
+        
         if search_id == "None":
             return "keien Eingabe"
     # Lädt Personendaten nach ID.

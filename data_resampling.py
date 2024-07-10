@@ -4,10 +4,10 @@ import json
 
 ### resamplen der Daten und ersetzen des Resultlinks
 
-def resample_and_changeLink_ekg_data(input_folder, output_folder, step=5):
-
+def resample_and_changeLink_ekg_data(input_folder, output_folder, new_result_link_Var, old_result_link_Var, datalink, step=5,):
+    
     # Laden der JSON-Datei
-    with open("data/person_db.json", 'r') as file:
+    with open(datalink, 'r') as file:
         data = json.load(file)
 
     # Durchlaufe alle Dateien im Eingabeordner
@@ -27,24 +27,29 @@ def resample_and_changeLink_ekg_data(input_folder, output_folder, step=5):
             df_resampled.to_csv(output_file_path, sep='\t', index=False, header=False)
 
             # Ändern des Resultlinks
-            new_result_link = f'data/resampled_data/{filename}'
+            new_result_link = f'{new_result_link_Var}{filename}'
+            old_result_link = f'{old_result_link_Var}{filename}'
 
             for person in data:
                 for ekg_test in person['ekg_tests']:
-                    old_result_link = f'data/ekg_data/{filename}'
                     if ekg_test['result_link'].replace("\\", "/") == old_result_link:
                         ekg_test['result_link'] = new_result_link
 
 
-    with open("data/person_db_resampled.json", 'w') as file:
+    with open("data/person_db_aktuell.json", 'w') as file:
         json.dump(data, file, indent=4)
 
 
-# Aufruf der Funktion
-input_folder = os.path.join('Data', 'ekg_data')
-output_folder = os.path.join('Data', 'resampled_data')
 
-resample_and_changeLink_ekg_data(input_folder, output_folder)
+if __name__ == "__main__":
+    # Beispiel Aufruf der Funktion
+    input_folder = os.path.join('Data', 'ekg_data')
+    output_folder = os.path.join('Data', 'resampled_data')
+
+    old_link = "data/ekg_data/"
+    new_link = "data/resampled_data/"
+
+    resample_and_changeLink_ekg_data(input_folder, output_folder, new_link, old_link)
 
 
 

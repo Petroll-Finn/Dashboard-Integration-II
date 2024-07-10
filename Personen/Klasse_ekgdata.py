@@ -6,7 +6,6 @@ from scipy.signal import find_peaks
 
 # %% Objekt-Welt
 
-# Klasse EKG-Data für Peakfinder, die uns ermöglicht peaks zu finden
 
 class EKGdata:
 
@@ -18,8 +17,11 @@ class EKGdata:
         return person_data
     
     @staticmethod
-    def load_by_id (id_EKG, link):
-        person_data = EKGdata.load_Data(link)
+    def load_by_id (id_EKG, person_data_Dict):
+
+        # person_data = EKGdata.load_Data(link)
+        person_data = person_data_Dict
+        
         # print (len(person_data))
         for eintrag_person in range(len(person_data)):
             # print (eintrag_person)
@@ -42,7 +44,7 @@ class EKGdata:
         self.frequenz_Faktor = None
 
     
-    def set_empty_values(self, start, end, frequenz_Faktor ):
+    def set_empty_values(self, start, end, frequenz_Faktor):
         self.start_wert = start
         self.end_wert = end
         self.frequenz_Faktor = frequenz_Faktor
@@ -60,7 +62,7 @@ class EKGdata:
         df_plotting = df_plotting.assign(**{'Zeit in ms': df_plotting['Zeit in ms'] / 1000})
 
         return df_plotting
-
+    
     def return_df_bereich (self):
         df_overall = self.df_for_plotting()
         df_bereich = df_overall.loc[(df_overall['Zeit in ms'] >= self.start_wert) & (df_overall['Zeit in ms'] <= self.end_wert)]
@@ -97,7 +99,6 @@ class EKGdata:
 
     
     def estimate_hr(self):
-        print ("heartrate")
         #Berechnung der Durchschnittlichen Herzrate im Gesamten Bereich
         self.peaks_1, _ = self.find_peaks()
         peak_differenz_1 = [self.peaks_1[i+1] - self.peaks_1[i] for i in range(len(self.peaks_1)-1)]
@@ -148,9 +149,9 @@ class EKGdata:
         datum = self.date
         return (datum)
     
-    def return_Länge_Zeitreihe (self, ):
+    def return_Länge_Zeitreihe (self):
         df = self.df
-        zeit = len(df) / (500)
+        zeit = len(df) / (self.frequenz_Faktor)
         return zeit
 
 
@@ -167,12 +168,12 @@ if __name__ == "__main__":
     ekg_dict1 = person_data[0]["ekg_tests"][0]
     print(ekg_dict1)
     ekg = EKGdata (ekg_dict1)
-    ekg.set_start_und_end_wert (100, 104)
+    ekg.set_empty_values (100, 104, 500)
 
     # print (ekg.df)
 
     print (ekg.return_Länge_Zeitreihe())
-    print (ekg.estimate_hr())
+    # print (ekg.estimate_hr())
     # print (ekg.test())
     
     # tuple1= ekg.find_peaks()
