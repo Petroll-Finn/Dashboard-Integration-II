@@ -39,8 +39,6 @@ python -m streamlit run app_website.py
 
 ### Personen und EKG
 
-**Resample-Option:** Benutzer kann wählen, ob die geresampleten Daten verwendet werden sollen
-
 **Versuchsperson auswählen:** Eine Person aus einer Liste von Versuchspersonen auswählen
 
 **Versuchsperson Informationen:**
