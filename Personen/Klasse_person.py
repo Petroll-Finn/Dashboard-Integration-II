@@ -24,7 +24,6 @@ class Person:
         # Eine Funktion der Nachname, Vorname als ein String übergeben wird und die die Person als Dictionary zurück gibt
 
         person_data = Person.load_person_data()
-        #print(suchstring)
         if suchstring == "None":
             return {}
 
@@ -33,7 +32,6 @@ class Person:
         nachname = two_names[0]
 
         for eintrag in person_data:
-            # print(eintrag)
             if (eintrag["lastname"] == nachname and eintrag["firstname"] == vorname):
                 print()
 

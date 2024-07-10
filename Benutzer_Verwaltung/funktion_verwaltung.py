@@ -48,7 +48,7 @@ if __name__ == "__main__":
     json_file = 'data/person_db_test.json'
 
     # Neuen Benutzer hinzufügen
-    manage_user(json_file, new_user_info)
+    # manage_user(json_file, new_user_info)
 
     # Bestehenden Benutzer aktualisieren
-    manage_user(json_file, updated_user_info, update=True)
+    # manage_user(json_file, updated_user_info, update=True)

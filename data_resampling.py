@@ -42,7 +42,6 @@ def resample_and_changeLink_ekg_data(input_folder, output_folder, new_result_lin
 
 
 if __name__ == "__main__":
-    # Beispiel Aufruf der Funktion
     input_folder = os.path.join('Data', 'ekg_data')
     output_folder = os.path.join('Data', 'resampled_data')
 

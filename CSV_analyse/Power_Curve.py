@@ -30,11 +30,7 @@ def return_df_for_plotting (df, frequenz = 1, window_lenghts = list(range(1, 180
     for lenght, i in zip (window_lenghts, range(1, 1806)):
         df_BestEffort.loc[i] = [lenght, find_best_effort(df, lenght, frequenz)]
 
-    # print (df_BestEffort["Duration [s]"])
     return df_BestEffort
-
-# [1,5,15,30,45,60,90,120,240,300,360,420,480,540,600,720,840,960,1080,1200,1320,1440,1560,1680,1800]
-# [1,5,15,30,45,60,90,120,240,300,360,420,480]
 
 
 

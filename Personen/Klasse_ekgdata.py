@@ -22,8 +22,6 @@ class EKGdata:
     @staticmethod
     def load_by_id (id_EKG, person_data_Dict):
         # Lädt EKG-Daten aus einer JSON-Datei.
-
-        # person_data = EKGdata.load_Data(link)
         person_data = person_data_Dict
         
         # print (len(person_data))
@@ -93,12 +91,7 @@ class EKGdata:
     def plot_time_series(self):
      # Plottet die Zeitreihe der EKG-Daten mit markierten Spitzen.   
         df_plotting = self.df_for_plotting ()
-
-        print (df_plotting)
-        print("hier")
-
         self.peaks, _ = self.find_peaks()
-        # print (self.peaks[0])
 
         self.fig = go.Figure()
         self.fig.add_scatter (x = df_plotting['Zeit in ms'], y=df_plotting['Messwerte in mV'], mode='lines', name='Signal')
@@ -121,19 +114,17 @@ class EKGdata:
 
         # division durch Null Error beheben, wenn nur ein Peak im Bereich
         if len(peak_differenz_2) == 0:
-            # print (len(peak_differenz_2))
             hr_bereich = 0
 
         else:
             durchschnittliche_peak_diff_2 = sum(peak_differenz_2) / len(peak_differenz_2)
-            # print (len(peak_differenz_2))
             hr_bereich= 60 / (durchschnittliche_peak_diff_2 / self.frequenz_Faktor) 
         
 
         return hr_overall, hr_bereich
     
     def plot_heartrate(self, window_size=5):
-    # Plottet die Herzrate über die Zeit im ausgewählten Bereich.
+        # Plottet die Herzrate über die Zeit im ausgewählten Bereich.
         df_plotting = self.df_for_plotting()
         peaks, _ = find_peaks(df_plotting['Messwerte in mV'], height=350)
         peak_zeiten = df_plotting['Zeit in ms'].iloc[peaks].values
@@ -156,28 +147,31 @@ class EKGdata:
         return fig
     
     def return_Test_Datum (self):
-    # Gibt das Datum des EKG-Tests zurück.
+        # Gibt das Datum des EKG-Tests zurück.
         datum = self.date
         return (datum)
     
     def return_Länge_Zeitreihe (self):
-    # Gibt die Länge der Zeitreihe zurück.
+        # Gibt die Länge der Zeitreihe zurück.
         df = self.df
         zeit = len(df) / (self.frequenz_Faktor)
         return zeit
     
-    def compute_hrv(self):
-    # Berechnet die Herzratenvariabilität (HRV) der EKG-Daten.
+    def compute_hrv_overall(self):
+        # Berechnet die Herzratenvariabilität (HRV) der EKG-Daten im gesamten Bereich
         ecg_signal = self.df['Messwerte in mV'].values
         signals, info = nk.ecg_process(ecg_signal, sampling_rate = self.frequenz_Faktor)
+        hrv_overall = nk.hrv_time(signals, sampling_rate = self.frequenz_Faktor)
+        return hrv_overall
+    
+    def compute_hrv_Bereich(self):
+        # Berechnet die Herzratenvariabilität (HRV) der EKG-Daten im ausgewählten Bereich
+        df_bereich = self.return_df_bereich ()
+        ecg_signal = df_bereich['Messwerte in mV'].values
+        signals, info = nk.ecg_process(ecg_signal, sampling_rate = self.frequenz_Faktor)
+        hrv_Bereich = nk.hrv_time(signals, sampling_rate = self.frequenz_Faktor)
+        return hrv_Bereich
 
-        hrv = nk.hrv_time(signals, sampling_rate = self.frequenz_Faktor)
-
-        return hrv
-
-
-
-#df_plotting['Zeit in ms'] = df_plotting['Zeit in ms'] / 500 # umrechnen in Sekunden für Plot
 
 if __name__ == "__main__":
     # print("This is a module with some functions to read the EKG data")

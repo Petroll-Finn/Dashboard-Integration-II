@@ -12,20 +12,17 @@ def load_activity(path="data/activity.csv"):
 
 def mittelwert (df):
     mittelwert_Leistung = df['PowerOriginal'].mean()
-    #print(mittelwert_Leistung)
 
     return mittelwert_Leistung
 
 
 def max_Leistung (df):
     max_Leistung = df['PowerOriginal'].max()
-    #print(max_Leistung)
     return max_Leistung
 
 
 def max_Herzfrequenz (df):
     max_Herzfrequenz = df["HeartRate"].max()
-    # print(max_Herzfrequenz)
     return max_Herzfrequenz
 
 
@@ -38,7 +35,6 @@ def time():
 
 def calc_Zones (max_HR):
     list_Zones = [0.5*max_HR, 0.6*max_HR, 0.7*max_HR, 0.8*max_HR, 0.9*max_HR, 1*max_HR]
-    # print (list_Zones)
 
     return list_Zones
 

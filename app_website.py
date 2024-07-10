@@ -162,7 +162,7 @@ if selected == "Personen und EKG":
     input_folder = os.path.join('Data', 'ekg_data')
     output_folder = os.path.join('Data', 'resampled_data')
 
-    frequenz_faktor = 100
+    # frequenz_faktor = 100
 
     # Überprüfen ob Checkbox aktiviert ist
     if agree:
@@ -203,7 +203,7 @@ if selected == "Personen und EKG":
     for names, ID_vergabe in zip(list_person_names, range(len(list_person_names))):
         if st.session_state.current_user == names:
             ID_person = ID_vergabe + 1
-            
+    
     # Erstelle Instanz Person
     Person_Dict = Klasse_person.Person.load_by_id(ID_person, data_json_aktuell)
     Instanz_von_Current_user = Klasse_person.Person(Person_Dict)
@@ -324,13 +324,21 @@ if selected == "Personen und EKG":
             fig_Heartrate = Instanz_von_Current_EKG.plot_heartrate()
             st.plotly_chart(fig_Heartrate)
             
-            st.subheader("Analyse Herzvariabilität")
-            Herzvariabilität = Instanz_von_Current_EKG.compute_hrv()
+            st.subheader("Analyse Herzvariabilität im Gesamten Bereich")
+            Herzvariabilität_overall = Instanz_von_Current_EKG.compute_hrv_overall()
 
-            st.metric(label="**HRV Mittelwert in Sekunden:**", value = (round ((Herzvariabilität["HRV_MeanNN"]/ 1000 ),3  )))
-            st.metric(label="**Maximale Zeit zwischen zwei Spitzen in Sekunden:**", value = (round ((Herzvariabilität["HRV_MinNN"]/ 1000 ),3  )))
-            st.metric(label="**Minimale Zeit zwischen zwei Spitzen in Sekunden:**", value = (round ((Herzvariabilität["HRV_MaxNN"]/ 1000 ),3  )))
+            st.metric(label="**HRV Mittelwert in Sekunden:**", value = (round ((Herzvariabilität_overall["HRV_MeanNN"]/ 1000 ),3  )))
+            st.metric(label="**Maximale Zeit zwischen zwei Spitzen in Sekunden:**", value = (round ((Herzvariabilität_overall["HRV_MinNN"]/ 1000 ),3  )))
+            st.metric(label="**Minimale Zeit zwischen zwei Spitzen in Sekunden:**", value = (round ((Herzvariabilität_overall["HRV_MaxNN"]/ 1000 ),3  )))
 
+            # st.subheader("Analyse Herzvariabilität im Ausgewählten Bereich")
+            # Herzvariabilität_bereich = Instanz_von_Current_EKG.compute_hrv_Bereich()
+
+            # st.metric(label="**HRV Mittelwert in Sekunden:**", value = (round ((Herzvariabilität_bereich["HRV_MeanNN"]/ 1000 ),3  )))
+            # st.metric(label="**Maximale Zeit zwischen zwei Spitzen in Sekunden:**", value = (round ((Herzvariabilität_bereich["HRV_MinNN"]/ 1000 ),3  )))
+            # st.metric(label="**Minimale Zeit zwischen zwei Spitzen in Sekunden:**", value = (round ((Herzvariabilität_bereich["HRV_MaxNN"]/ 1000 ),3  )))
+
+            
 
 
 
